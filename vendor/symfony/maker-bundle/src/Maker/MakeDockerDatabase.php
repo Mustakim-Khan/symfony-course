@@ -30,32 +30,26 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class MakeDockerDatabase extends AbstractMaker
 {
-    private $fileManager;
-    private $composeFilePath;
+    private string $composeFilePath;
+    private ?ComposeFileManipulator $composeFileManipulator = null;
 
     /**
-     * @var ComposeFileManipulator
+     * @var ?string type of database selected by the user
      */
-    private $composeFileManipulator;
-
-    /**
-     * @var string type of database selected by the user
-     */
-    private $databaseChoice;
+    private ?string $databaseChoice = null;
 
     /**
      * @var string Service identifier to be set in docker-compose.yaml
      */
-    private $serviceName = 'database';
+    private string $serviceName = 'database';
 
     /**
      * @var string Version set in docker-compose.yaml for the service. e.g. latest
      */
-    private $serviceVersion = 'latest';
+    private string $serviceVersion = 'latest';
 
-    public function __construct(FileManager $fileManager)
+    public function __construct(private FileManager $fileManager)
     {
-        $this->fileManager = $fileManager;
     }
 
     public static function getCommandName(): string
@@ -108,7 +102,7 @@ final class MakeDockerDatabase extends AbstractMaker
 
             $io->text($serviceNameMsg);
 
-            $this->serviceName = $io->ask(sprintf('What name should we call the new %s service? e.g. database', $this->serviceName), null, [Validator::class, 'notBlank']);
+            $this->serviceName = $io->ask(sprintf('What name should we call the new %s service? (e.g. <fg=yellow>database</>)', $this->serviceName), null, [Validator::class, 'notBlank']);
         }
 
         $this->checkForPDOSupport($this->databaseChoice, $io);

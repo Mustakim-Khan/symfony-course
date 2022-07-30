@@ -4,33 +4,42 @@ namespace App\Entity;
 
 use App\Repository\IngredientRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=IngredientRepository::class)
- */
+
+#[ORM\Entity(repositoryClass: IngredientRepository::class)]
 class Ingredient
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $name;
+    #[ORM\Column(length: 50)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your first name must be at least {{ limit }} characters long',
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters'
+    )]
+    private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $price;
+    #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\Positive]
+    #[Assert\LessThan(200)]
+    private ?int $price = null;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
-    private $createdAt;
+    #[ORM\Column]
+    #[Assert\NotNull]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    public function __construct()
+    {
+
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -49,12 +58,12 @@ class Ingredient
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): ?int
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): self
+    public function setPrice(int $price): self
     {
         $this->price = $price;
 
